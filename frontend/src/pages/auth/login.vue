@@ -1,19 +1,31 @@
 <template>
   <div>
-   
+    <Header />
     <div class="login-container">
       <div class="login-form-wrapper">
         <h2 class="text-center">Đăng Nhập</h2>
         <form @submit.prevent="handleSubmit">
           <div class="mb-3">
-            <label for="username" class="form-label">Tên Người Dùng</label>
-            <input type="text" class="form-control" id="username" v-model="username" placeholder="Nhập tên người dùng"
-              required />
+            <label for="email" class="form-label">Email</label>
+            <input
+              type="email"
+              class="form-control"
+              id="email"
+              v-model="email"
+              placeholder="Nhập email"
+              required
+            />
           </div>
           <div class="mb-3">
             <label for="password" class="form-label">Mật Khẩu</label>
-            <input type="password" class="form-control" id="password" v-model="password" placeholder="Nhập mật khẩu"
-              required />
+            <input
+              type="password"
+              class="form-control"
+              id="password"
+              v-model="password"
+              placeholder="Nhập mật khẩu"
+              required
+            />
           </div>
 
           <div class="d-flex justify-content-center w-100 mt-3">
@@ -21,90 +33,74 @@
           </div>
           <div class="d-flex justify-content-center w-100 mt-3 text-white">
             Bạn chưa có tài khoản,
-            <router-link class="text-decoration-none text-info mx-2" to="/DangKy">Đăng ký ngay</router-link>
+            <router-link
+              class="text-decoration-none text-info mx-2"
+              to="/register"
+              >Đăng ký ngay</router-link
+            >
           </div>
           <div v-if="loginError" class="text-danger">
             {{ loginError }}
           </div>
-
         </form>
-
+        <div v-if="isLoggedIn" class="alert alert-warning text-center">
+          Bạn đã đăng nhập, vui lòng đăng xuất để đăng nhập tài khoản khác.
+        </div>
       </div>
     </div>
-   
+    <Footer />
   </div>
 </template>
 
 <script>
-
-import axios from 'axios';
-
+import axios from "axios";
+import Header from "@/components/header/header.vue";
+import Footer from "@/components/footer/footer.vue";
+import Cookies from "js-cookie";
 export default {
-  components: {
-    
-  },
+  components: { Header, Footer },
   data() {
     return {
-      username: '',
-      password: '',
-
+      email: "",
+      password: "",
       loginError: false,
-      alreadyLoggedIn: false,
+      isLoggedIn: false,
     };
   },
-  created(){
-    // Kiểm tra nếu có dữ liệu đăng nhập trong localStorage
-    if (localStorage.getItem('username') && localStorage.getItem('user_id')) {
-      this.alreadyLoggedIn = true;
-    }
-  },
+
   methods: {
-    handleSubmit() {
-      if (this.alreadyLoggedIn) {
-        this.loginError = 'Bạn đã đăng nhập rồi';
-        return; 
+    async handleSubmit() {
+      if (this.isLoggedIn) {
+        this.loginError =
+          "Bạn đã đăng nhập, vui lòng đăng xuất để đăng nhập tài khoản khác.";
+        return;
       }
-
-      this.login();
-    },
-
-    async login() {
       try {
-        const response = await axios.post('http://localhost:3000/api/login', {
-          username: this.username,
-          password: this.password,
+        const response = await axios.post(
+          "http://localhost:5000/api/user/login",
+          {
+            email: this.email,
+            password: this.password,
+          },
+          { withCredentials: true }
+        );
 
-        });
-
-        if (response.data.success) {
-          // Lưu thông tin vào localStorage
-          
-          localStorage.setItem('username', this.username);
-          localStorage.setItem('user_id', response.data.user_id);
-          localStorage.setItem('avatar', response.data.avatar);
-          localStorage.setItem('vai_tro', response.data.vai_tro); // Lưu vai trò vào localStorage
-          
-          const vai_tro = localStorage.getItem('vai_tro');
-
-          if (vai_tro === 'admin') {
-            this.$router.push('/Admin'); 
-          } else {
-            this.$router.push('/'); 
-          }
-        } else {
-          this.loginError = response.data.message; 
-        }
+        this.$router.push("/");
       } catch (error) {
-        console.error('Lỗi khi đăng nhập:', error);
-        this.loginError = 'Tên đăng nhập hoặc mật khẩu không chính xác'; 
+        console.error("Lỗi khi đăng nhập:", error);
+        this.loginError = "Email hoặc mật khẩu không đúng";
       }
+    },
+  },
+  created() {
+    // Kiểm tra nếu có accessToken trong cookies
+    if (Cookies.get("accessToken")) {
+      this.isLoggedIn = true;
     }
-
-
-
   },
 };
 </script>
+
 
 
 <style scoped>

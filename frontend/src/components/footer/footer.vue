@@ -1,27 +1,37 @@
 <template>
   <footer class="footer">
-    <div class="container-fluid">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <div class="container">
       <div class="row">
         <div class="col-md-3">
-          <h5 class="footer-title">About Leviathan</h5>
-          <p>
-            Leviathan là nền tảng đặt vé xem phim trực tuyến, giúp bạn dễ dàng
-            chọn suất chiếu, ghế ngồi và thanh toán nhanh chóng. Với giao diện
-            thân thiện, cập nhật lịch chiếu liên tục và nhiều ưu đãi hấp dẫn,
-            Leviathan mang đến trải nghiệm đặt vé tiện lợi và thú vị, giúp bạn
-            tận hưởng những bộ phim bom tấn ngay tại rạp. 🍿
-          </p>
+          <h5 class="footer-title">MovieTickets</h5>
+          <ul class="footer-links">
+            <router-link to="/"><li>Giới Thiệu</li></router-link>
+            <router-link to="/PhimBomTan"><li>Tiện ích</li></router-link>
+            <router-link to="/PhimHanhDong"
+              ><li>Chính sách thanh toán</li></router-link
+            >
+            <router-link to="/PhimVietNam"
+              ><li>Chính sách báo mật</li></router-link
+            >
+            <router-link to="/PhimKhoaHocVienTuong"
+              ><li>Trang Chủ</li></router-link
+            >
+          </ul>
         </div>
 
         <div class="col-md-3">
           <h5 class="footer-title">Quick Links</h5>
           <ul class="footer-links">
-            <router-link to="/"><li>MovieTime</li></router-link>
-            <router-link to="/PhimBomTan"><li>Blockbusters</li></router-link>
-            <router-link to="/PhimHanhDong"><li>ActionMovies</li></router-link>
-            <router-link to="/PhimVietNam"><li>Phim Việt Nam</li></router-link>
+            <router-link to="/"><li>MovieTicket</li></router-link>
+            <router-link to="/PhimBomTan"><li>Phim</li></router-link>
+            <router-link to="/PhimHanhDong"><li>Đặt Vé</li></router-link>
+            <router-link to="/PhimVietNam"><li>Lịch Chiếu</li></router-link>
             <router-link to="/PhimKhoaHocVienTuong"
-              ><li>ScienceFictionMovie</li></router-link
+              ><li>Trang Chủ</li></router-link
             >
           </ul>
         </div>
@@ -48,10 +58,11 @@
 
       <div class="row mt-4">
         <div class="col text-center">
-          Đăng ký thành viên bản tin của chúng tôi để nhận các cập nhật mới nhất, sản
-          phẩm phát hành mới và nội dung độc quyền gửi đến hộp thư của bạn.
+          Đăng ký thành viên bản tin của chúng tôi để nhận các cập nhật mới
+          nhất, sản phẩm phát hành mới và nội dung độc quyền gửi đến hộp thư của
+          bạn.
           <form class="subscribe-form">
-            <router-link to="/DangKy"
+            <router-link to="/register"
               ><button class="btn-subscribe">Đăng Ký Ngay</button></router-link
             >
           </form>
@@ -61,7 +72,7 @@
       <div class="row mt-4">
         <div class="col text-center">
           <p class="footer-bottom-text">
-            &copy; 2024 MovieTime. All rights reserved.
+            &copy; 2025 MovieTickets. All rights reserved.
           </p>
         </div>
       </div>
@@ -77,17 +88,16 @@ export default {
       
       <style scoped>
 .footer {
+  width: 100vw; /* Đảm bảo footer luôn full màn hình */
+  max-width: 100%;
+  padding: 50px 0;
   background-color: #121212;
   color: #ffffff;
-  padding: 50px 0;
-  font-size: 16px;
-    max-width: 100%;
-  height: 500px;
 }
-
-.footer .container-fluid {
+.container {
   max-width: 100%;
-  margin: auto;
+  width: 100%;
+  padding: 0 20px; /* Điều chỉnh khoảng cách nếu cần */
 }
 
 .footer-title {

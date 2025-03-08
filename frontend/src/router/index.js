@@ -1,17 +1,15 @@
-import { createRouter, createWebHistory } from 'vue-router';
-
+import { createRouter, createWebHistory } from "vue-router";
+import movieRoutes from "./movie";
+import adminRoutes from "./admin"; // Import danh sách routes từ movie.js
 const routes = [
-    { path: '/', component: () => import('../pages/Home/Home.vue') },
-    { path: '/random', component: () => import('../components/movie/random_poster.vue') },
-    { path: '/header', component: () => import('../components/header/header.vue') },
-    { path: '/banner', component: () => import('../components/movie/banner.vue') },
-    { path: '/login', component: () => import('../pages/auth/login.vue') },
-    { path: '/register', component: () => import('../pages/auth/register.vue') },
+  { path: "/", component: () => import("../pages/Home/Home.vue") },
+  ...movieRoutes,
+  ...adminRoutes,
 ];
 
 const router = createRouter({
-    history: createWebHistory(),
-    routes
+  history: createWebHistory(),
+  routes,
 });
 
 export default router;

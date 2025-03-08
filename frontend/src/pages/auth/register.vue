@@ -1,190 +1,141 @@
 <template>
   <div>
-   
+    <Header />
     <div class="register-container">
       <div class="register-form-wrapper">
         <h2 class="text-center">Đăng Ký Thành Viên</h2>
         <form @submit.prevent="handleSubmit">
           <div class="mb-3">
-            <label for="username" class="form-label">Tên Người Dùng</label>
-            <input type="text" class="form-control" id="username" v-model="username" @input="onUsernameInput"
-              placeholder="Nhập tên người dùng" required />
-            <div v-if="usernameError" class="text-danger">{{ usernameError }}</div>
+            <label for="name" class="form-label">Họ và Tên</label>
+            <input type="text" class="form-control" id="name" v-model="name" placeholder="Nhập họ tên" required />
           </div>
 
           <div class="mb-3">
             <label for="email" class="form-label">Email</label>
-            <input type="email" class="form-control" id="email" v-model="email" @input="checkEmail"
-              placeholder="Nhập địa chỉ email" required />
+            <input type="email" class="form-control" id="email" v-model="email" @input="checkEmail" placeholder="Nhập địa chỉ email" required />
             <div v-if="emailError" class="text-danger">{{ emailError }}</div>
           </div>
 
           <div class="mb-3">
+            <label for="phone" class="form-label">Số Điện Thoại</label>
+            <input type="tel" class="form-control" id="phone" v-model="phone" placeholder="Nhập số điện thoại" required />
+          </div>
+
+          <div class="mb-3">
             <label for="password" class="form-label">Mật Khẩu</label>
-            <input type="password" class="form-control" id="password" v-model="password" placeholder="Nhập mật khẩu"
-              required />
+            <input type="password" class="form-control" id="password" v-model="password" placeholder="Nhập mật khẩu" required />
           </div>
 
           <div class="mb-3">
             <label for="confirmPassword" class="form-label">Xác Nhận Mật Khẩu</label>
-            <input type="password" class="form-control" id="confirmPassword" v-model="confirmPassword"
-              placeholder="Xác nhận mật khẩu" required />
+            <input type="password" class="form-control" id="confirmPassword" v-model="confirmPassword" placeholder="Xác nhận mật khẩu" required />
             <div v-if="passwordMismatch" class="text-danger">Mật khẩu không khớp!</div>
           </div>
 
-          <div class="mb-3">
-            <label for="hoTen" class="form-label">Họ và Tên</label>
-            <input type="text" class="form-control" id="hoTen" v-model="hoTen" placeholder="Nhập họ tên người dùng"
-              required />
-          </div>
-          <div class="mb-3">
-            <label for="sdt" class="form-label">Số Điện Thoại</label>
-            <input type="text" class="form-control" id="sdt" v-model="sdt" @input="checkSdt"
-              placeholder="Nhập số điện thoại" required />
-            <div v-if="sdtError" class="text-danger">{{ sdtError }}</div>
-          </div>
           <div class="d-flex justify-content-center w-100 mt-3">
             <button type="submit" class="btn btn-primary">Đăng Ký</button>
           </div>
-
-          <div v-if="successMessage" class="text-success mt-3">{{ successMessage }}</div>
-          <div v-if="generalError" class="text-danger mt-3">{{ generalError }}</div>
         </form>
       </div>
     </div>
-  
+    <Footer />
   </div>
 </template>
 
 <script>
-import debounce from "lodash.debounce";
+import axios from "axios";
+import Swal from "sweetalert2";
+import Header from "@/components/header/header.vue";
+import Footer from "@/components/footer/footer.vue";
 
-    import axios from 'axios';
 export default {
-  components:{
-   
-  },
+  components: { Header, Footer },
   data() {
     return {
-      username: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-      hoTen: '',
-      sdt: '',
-      usernameError: '',
-      emailError: '',
+      name: "",
+      email: "",
+      phone: "",
+      password: "",
+      confirmPassword: "",
+      emailError: "",
       passwordMismatch: false,
-      successMessage: '',
-      generalError: '',
+      debounceTimer: null,
     };
   },
   watch: {
     password() {
-      this.checkPasswordMismatch();
-    },
-    confirmPassword() {
-      this.checkPasswordMismatch();
-    }
-  },
-  methods: {
-    checkPasswordMismatch() {
       this.passwordMismatch = this.password !== this.confirmPassword;
     },
-    
-  checkSdt() {
-    const sdtRegex = /^(0[3|5|7|8|9])[0-9]{8,10}$/;
-    if (!sdtRegex.test(this.sdt)) {
-      this.sdtError = 'Số điện thoại không hợp lệ. Vui lòng nhập lại.';
-    } else {
-      this.sdtError = '';
-    }
+    confirmPassword() {
+      this.passwordMismatch = this.password !== this.confirmPassword;
+    },
   },
+  methods: {
     async handleSubmit() {
-      this.successMessage = '';
-      this.generalError = '';
+      if (this.passwordMismatch || this.emailError) return;
+      
+      Swal.fire({
+        title: "Đang xử lý...",
+        text: "Vui lòng chờ giây lát",
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); },
+      });
 
-      if (!this.usernameError && !this.emailError && !this.passwordMismatch) {
-        try {
-          const response = await fetch("http://localhost:3000/api/register", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              ten_dang_nhap: this.username,
-              email: this.email,
-              mat_khau: this.password,
-              ho_ten: this.hoTen,
-              sdt:this.sdt,
-            }),
+      try {
+        const response = await fetch("http://localhost:5000/api/user/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: this.name,
+            email: this.email,
+            phone: this.phone,
+            password: this.password,
+          }),
+        });
+
+        if (response.ok) {
+          Swal.fire({
+            icon: "success",
+            title: "Đăng ký thành công!",
+            text: "Bạn sẽ được chuyển đến trang đăng nhập.",
+            timer: 3000,
+            showConfirmButton: false,
           });
+          setTimeout(() => { this.$router.push("/login"); }, 3000);
+        } else {
+          const errorData = await response.json();
+          Swal.fire({
+            icon: "error",
+            title: "Lỗi!",
+            text: errorData.error || "Có lỗi xảy ra khi đăng ký!",
+          });
+        }
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Lỗi kết nối!",
+          text: "Vui lòng thử lại sau!",
+        });
+      }
+    },
 
-          if (response.ok) {
-            // Đăng ký thành công
-            this.successMessage = "Đăng ký thành công!";
-            this.username = this.email = this.password = this.confirmPassword = this.hoTen =this.sdt= '';
-            this.$router.push('/DangNhap');
-          } else {
-            const errorData = await response.json();
-            this.generalError = errorData.error || "Có lỗi xảy ra khi đăng ký!";
-          }
+    checkEmail() {
+      clearTimeout(this.debounceTimer);
+      this.debounceTimer = setTimeout(async () => {
+        if (!this.email.trim()) {
+          this.emailError = "Email không được để trống.";
+          return;
+        }
+        try {
+          const response = await fetch(`http://localhost:5000/api/user/check-email?email=${this.email.trim()}`);
+          const result = await response.json();
+          this.emailError = result.exists ? "Email đã tồn tại." : "";
         } catch (error) {
-          console.error("Lỗi đăng ký:", error);
-          this.generalError = "Đã có lỗi xảy ra. Vui lòng thử lại sau!";
+          this.emailError = "Lỗi kết nối đến máy chủ.";
         }
-      }
-    }
-    ,
-    async checkUsername(username) {
-      if (!username) {
-        this.usernameError = "Tên người dùng không được để trống.";
-        return false;
-      }
-
-      try {
-        const response = await fetch(`http://localhost:3000/api/check-username?username=${username}`);
-        const result = await response.json();
-
-        if (result.exists) {
-          this.usernameError = "Tên người dùng đã tồn tại.";
-          return true; // Tên người dùng đã tồn tại
-        } else {
-          this.usernameError = '';
-          return false; 
-        }
-      } catch (error) {
-        console.error("Lỗi khi kiểm tra tên người dùng:", error);
-        this.usernameError = "Lỗi kết nối đến máy chủ.";
-        return false;
-      }
+      }, 500);
     },
-
-    async checkEmail() {
-      const email = this.email;
-      if (!email) {
-        this.emailError = "Email không được để trống.";
-        return;
-      }
-
-      try {
-        const response = await fetch(`http://localhost:3000/api/check-email?email=${email}`);
-        const result = await response.json();
-
-        if (result.exists) {
-          this.emailError = "Email đã tồn tại.";
-        } else {
-          this.emailError = '';
-        }
-      } catch (error) {
-        console.error("Lỗi khi kiểm tra email:", error);
-        this.emailError = "Lỗi kết nối đến máy chủ.";
-      }
-    },
-
-    onUsernameInput: debounce(function (event) {
-      const username = event.target.value;
-      this.checkUsername(username);
-    }, 1000)
-  }
+  },
 };
 </script>
 
@@ -198,34 +149,11 @@ export default {
   background-size: cover;
   background-position: center;
 }
-
 .register-form-wrapper {
   background-color: rgba(0, 0, 0, 0.6);
   padding: 30px;
   border-radius: 12px;
-  width: 100%;
   max-width: 500px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
 }
-
-h2 {
-  color: #fff;
-  margin-bottom: 20px;
-}
-
-.form-label {
-  color: #fff;
-}
-
-.form-control {
-  border-radius: 8px;
-}
-
-.btn-primary {
-  border-radius: 8px;
-}
-
-.text-danger {
-  font-size: 14px;
-}
+.text-danger { font-size: 14px; }
 </style>
